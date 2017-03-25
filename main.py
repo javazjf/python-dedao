@@ -43,16 +43,28 @@ def get_all_threads(url, dirname, myheaders):
             title = title.replace('\n', '').replace('\r', '')
             thread_url = "http://jieduclub.com/" + item.find("a").get("href")
             print title, thread_url
+            has_exist = check_file_has_download(dirname, title)
+            if has_exist is True:
+                print "has download,break"
+                break
             download_mp3(thread_url, dirname, title, myheaders)
-        pitems = html.find("div", {"class": "pg"})
-        if pitems is not None:
-            pages = pitems.find_all("a")
-            for page in pages:
-                cls = page.get("class")
-                if cls is not None and "nxt" == cls[0]:
-                    get_all_threads("http://jieduclub.com/" + page.get("href"), dirname, myheaders)
+        if has_exist is False:
+            pitems = html.find("div", {"class": "pg"})
+            if pitems is not None:
+                pages = pitems.find_all("a")
+                for page in pages:
+                    cls = page.get("class")
+                    if cls is not None and "nxt" == cls[0]:
+                        get_all_threads("http://jieduclub.com/" + page.get("href"), dirname, myheaders)
     except Exception, e:
         print "get thread error:" + traceback.format_exc()
+
+
+def check_file_has_download(dirname, title):
+    if os.path.exists("resource/" + dirname) and os.path.exists("resource/" + dirname + "/" + title + ".mp3"):
+        return True
+    else:
+        return False
 
 
 if __name__ == '__main__':
